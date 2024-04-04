@@ -12,9 +12,12 @@ import cors from "cors";
 import helmet from "helmet";
 import hpp from "hpp";
 import cookieSession from "cookie-session";
-import HTTP_STATUS from "http-status-codes";
 import "express-async-errors";
 import compression from "compression";
+import HTTP_STATUS from "http-status-codes";
+import { Server } from "socket.io";
+import { createClient } from "redis";
+import { createAdapter } from "@socket.io/redis-adapter";
 
 const SERVER_PORT = 3001;
 
@@ -77,18 +80,45 @@ export class ChattyServer {
 	private async startServer(app: Application): Promise<void> {
 		try {
 			const httpServer: http.Server = new http.Server(app);
+			const socketIO: Server = await this.createSocketIO(httpServer);
+
 			this.startHttpServer(httpServer);
+			this.socketIOConnections(socketIO);
 		} catch (err) {
-			console.error(`Something went wrong at start server ${err}`);
+			console.log(`Something went wrong at start server ${err}`);
 		}
 	}
 
-	private createSocketIO(httpServer: http.Server): void {}
+	private async createSocketIO(httpServer: http.Server): Promise<Server> {
+		try {
+			const { CLIENT_URL, REDIS_HOST } = process.env;
+			const io: Server = new Server(httpServer, {
+				cors: {
+					origin: CLIENT_URL,
+					methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+				},
+			});
+			const pubClient = createClient({ url: REDIS_HOST });
+			const subClient = pubClient.duplicate();
+
+			await Promise.all([pubClient.connect(), subClient.connect()]);
+			io.adapter(createAdapter(pubClient, subClient));
+
+			return io;
+		} catch (err) {
+			console.error(`Create Socket IO faced an error ${err}`);
+			throw err;
+		}
+	}
 
 	private startHttpServer(httpServer: http.Server): void {
+		console.log(`Server has started with a process of ${process.pid}`);
+
 		// Do not use console.log in production.
 		httpServer.listen(SERVER_PORT, () =>
 			console.log(`Server listening on port ${SERVER_PORT}`)
 		);
 	}
+
+	private socketIOConnections(io: Server): void {}
 }

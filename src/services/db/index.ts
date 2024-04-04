@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 const { DATABASE_URL } = process.env;
