@@ -36,15 +36,20 @@ export class ChattyServer {
 	}
 
 	private securityMiddleware(app: Application): void {
+		const { SECRET_COOKIE_ONE, SECRET_COOKIE_TWO, NODE_ENV } = process.env;
+
 		// AWS load balancer will use the name 'session'
 		// Cookies are renewed whenever user logs out and logs back in.
 		const sevenDays = 24 * 7 * 3600000;
+		const keys = [SECRET_COOKIE_ONE, SECRET_COOKIE_TWO];
+		const secure = NODE_ENV.toLocaleLowerCase() !== "development"; // set to true when deploying to different environment
+
 		app.use(
 			cookieSession({
 				name: "session",
-				keys: ["test1", "test2"],
 				maxAge: sevenDays,
-				secure: false, // set to true when deploying to different environment
+				keys,
+				secure,
 			})
 		);
 		app.use(hpp());

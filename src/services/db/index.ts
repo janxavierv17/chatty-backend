@@ -1,9 +1,9 @@
+import { z } from "zod";
 import { MongoClient, ServerApiVersion } from "mongodb";
-import mongoose from "mongoose";
 
-const uri =
-	"mongodb+srv://admin:admin@cluster0.kvpit.mongodb.net/?retryWrites=true&w=majority&appName=chattyApp";
-const client = new MongoClient(uri, {
+const { DATABASE_URL } = process.env;
+
+const client = new MongoClient(DATABASE_URL, {
 	monitorCommands: true,
 	serverApi: {
 		version: ServerApiVersion.v1,
