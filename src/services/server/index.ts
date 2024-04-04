@@ -89,6 +89,8 @@ export class ChattyServer {
 		}
 	}
 
+	// Ensure that the redis server is running
+	// Command to run redis server is redis-server
 	private async createSocketIO(httpServer: http.Server): Promise<Server> {
 		try {
 			const { CLIENT_URL, REDIS_HOST } = process.env;
@@ -106,7 +108,7 @@ export class ChattyServer {
 
 			return io;
 		} catch (err) {
-			console.error(`Create Socket IO faced an error ${err}`);
+			console.error("Create Socket IO faced an error: ", err);
 			throw err;
 		}
 	}
