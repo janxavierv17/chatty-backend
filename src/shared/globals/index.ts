@@ -10,5 +10,4 @@ export const env_variables = z.object({
 	SECRET_COOKIE_TWO: z.string(),
 	REDIS_HOST: z.string(),
 });
-
 env_variables.parse(process.env);

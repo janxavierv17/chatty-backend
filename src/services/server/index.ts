@@ -18,8 +18,15 @@ import HTTP_STATUS from "http-status-codes";
 import { Server } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
+import {
+	CustomError,
+	IError,
+	IErrorResponse,
+} from "../../shared/globals/errors.ts";
+import { createLogger } from "../../shared/globals/logger.ts";
 
 const SERVER_PORT = 3001;
+const logger = createLogger("server");
 
 // Contains start up code
 // setupServer.ts
@@ -75,7 +82,33 @@ export class ChattyServer {
 
 	private routesMiddleware(app: Application): void {}
 
-	private globalErrorHandler(app: Application): void {}
+	// Catch error where an endpoint does not exist.
+	private globalErrorHandler(app: Application): void {
+		app.all("*", (req: Request, res: Response) => {
+			res.status(HTTP_STATUS.NOT_FOUND).json({
+				message: `${req.originalUrl} does not exist.`,
+			});
+		});
+
+		app.use(
+			(
+				err: IErrorResponse,
+				req: Request,
+				res: Response,
+				next: NextFunction
+			): void => {
+				logger.info("Global error handler", err);
+
+				if (err instanceof CustomError) {
+					res.status(err.statusCode)
+						.json(err.serializeErrors())
+						.end();
+				} else {
+					next();
+				}
+			}
+		);
+	}
 
 	private async startServer(app: Application): Promise<void> {
 		try {
@@ -85,7 +118,7 @@ export class ChattyServer {
 			this.startHttpServer(httpServer);
 			this.socketIOConnections(socketIO);
 		} catch (err) {
-			console.log(`Something went wrong at start server ${err}`);
+			logger.error(`Something went wrong at start server: `, err);
 		}
 	}
 
@@ -108,17 +141,17 @@ export class ChattyServer {
 
 			return io;
 		} catch (err) {
-			console.error("Create Socket IO faced an error: ", err);
+			logger.error("Create Socket IO faced an error: ", err);
 			throw err;
 		}
 	}
 
 	private startHttpServer(httpServer: http.Server): void {
-		console.log(`Server has started with a process of ${process.pid}`);
+		logger.info(`Server has started with a process of ${process.pid}`);
 
-		// Do not use console.log in production.
+		// Do not use logger.info in production.
 		httpServer.listen(SERVER_PORT, () =>
-			console.log(`Server listening on port ${SERVER_PORT}`)
+			logger.info(`Server listening on port ${SERVER_PORT}`)
 		);
 	}
 

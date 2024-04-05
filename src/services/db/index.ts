@@ -1,4 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
+import { createLogger } from "../../shared/globals/logger.ts";
+
+const logger = createLogger("database");
 
 const { DATABASE_URL } = process.env;
 
@@ -15,9 +18,9 @@ export default () => {
 	const connect = () => {
 		client
 			.connect()
-			.then(() => console.log(`Successfully connected to our MongoDB.`))
+			.then(() => logger.info(`Successfully connected to our MongoDB.`))
 			.catch((err) => {
-				console.error(`Something went wrong ${err}`);
+				logger.error(`Something went wrong ${err}`);
 				client.close();
 				return process.exit(1);
 			});
@@ -26,10 +29,10 @@ export default () => {
 			.db("admin")
 			.command({ ping: 1 })
 			.then((payload) =>
-				console.log(`Successfully pinged our db.`, payload)
+				logger.info(`Successfully pinged our db.`, payload)
 			)
 			.catch((err) =>
-				console.error(`Pinged db but an error occured ${err}`)
+				logger.error(`Pinged db but an error occured ${err}`)
 			);
 	};
 	connect();
