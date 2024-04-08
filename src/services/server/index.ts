@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
-	Application,
-	json,
-	urlencoded,
-	Response,
-	Request,
-	NextFunction,
+    Application,
+    json,
+    urlencoded,
+    Response,
+    Request,
+    NextFunction
 } from "express";
 
 import http from "http";
@@ -19,9 +21,9 @@ import { Server } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import {
-	CustomError,
-	IError,
-	IErrorResponse,
+    CustomError,
+    IError,
+    IErrorResponse
 } from "../../shared/globals/errors.ts";
 import { createLogger } from "../../shared/globals/logger.ts";
 
@@ -31,129 +33,132 @@ const logger = createLogger("server");
 // Contains start up code
 // setupServer.ts
 export class ChattyServer {
-	private app: Application;
+    private app: Application;
 
-	constructor(app: Application) {
-		this.app = app;
-	}
+    constructor(app: Application) {
+        this.app = app;
+    }
 
-	public start(): void {
-		this.securityMiddleware(this.app);
-		this.standardMiddleware(this.app);
-		this.routesMiddleware(this.app);
-		this.globalErrorHandler(this.app);
-		this.startServer(this.app);
-	}
+    public start(): void {
+        this.securityMiddleware(this.app);
+        this.standardMiddleware(this.app);
+        this.routesMiddleware(this.app);
+        this.globalErrorHandler(this.app);
+        this.startServer(this.app);
+    }
 
-	private securityMiddleware(app: Application): void {
-		const { SECRET_COOKIE_ONE, SECRET_COOKIE_TWO, NODE_ENV } = process.env;
+    private securityMiddleware(app: Application): void {
+        const { SECRET_COOKIE_ONE, SECRET_COOKIE_TWO, NODE_ENV } = process.env;
 
-		// AWS load balancer will use the name 'session'
-		// Cookies are renewed whenever user logs out and logs back in.
-		const sevenDays = 24 * 7 * 3600000;
-		const keys = [SECRET_COOKIE_ONE, SECRET_COOKIE_TWO];
-		const secure = NODE_ENV.toLocaleLowerCase() !== "development"; // set to true when deploying to different environment
+        // AWS load balancer will use the name 'session'
+        // Cookies are renewed whenever user logs out and logs back in.
+        const sevenDays = 24 * 7 * 3600000;
+        const keys = [SECRET_COOKIE_ONE, SECRET_COOKIE_TWO];
+        const secure = NODE_ENV.toLocaleLowerCase() !== "development"; // set to true when deploying to different environment
 
-		app.use(
-			cookieSession({
-				name: "session",
-				maxAge: sevenDays,
-				keys,
-				secure,
-			})
-		);
-		app.use(hpp());
-		app.use(helmet());
-		app.use(
-			cors({
-				origin: "*",
-				credentials: true,
-				optionsSuccessStatus: 200,
-				methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-			})
-		);
-	}
+        app.use(
+            cookieSession({
+                name: "session",
+                maxAge: sevenDays,
+                keys,
+                secure
+            })
+        );
 
-	private standardMiddleware(app: Application): void {
-		app.use(compression());
-		app.use(json({ limit: "50mb" }));
-		app.use(urlencoded({ extended: true, limit: "50mb" }));
-	}
+        // hpp protects our app against http request parameter pollution attacks
+        // bypassing input validation or DDOS
+        app.use(hpp());
+        app.use(helmet());
+        app.use(
+            cors({
+                origin: "*",
+                credentials: true,
+                optionsSuccessStatus: 200,
+                methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+            })
+        );
+    }
 
-	private routesMiddleware(app: Application): void {}
+    private standardMiddleware(app: Application): void {
+        app.use(compression());
+        app.use(json({ limit: "50mb" }));
+        app.use(urlencoded({ extended: true, limit: "50mb" }));
+    }
 
-	// Catch error where an endpoint does not exist.
-	private globalErrorHandler(app: Application): void {
-		app.all("*", (req: Request, res: Response) => {
-			res.status(HTTP_STATUS.NOT_FOUND).json({
-				message: `${req.originalUrl} does not exist.`,
-			});
-		});
+    private routesMiddleware(app: Application): void {}
 
-		app.use(
-			(
-				err: IErrorResponse,
-				req: Request,
-				res: Response,
-				next: NextFunction
-			): void => {
-				logger.info("Global error handler", err);
+    // Catch error where an endpoint does not exist.
+    private globalErrorHandler(app: Application): void {
+        app.all("*", (req: Request, res: Response) => {
+            res.status(HTTP_STATUS.NOT_FOUND).json({
+                message: `${req.originalUrl} does not exist.`
+            });
+        });
 
-				if (err instanceof CustomError) {
-					res.status(err.statusCode)
-						.json(err.serializeErrors())
-						.end();
-				} else {
-					next();
-				}
-			}
-		);
-	}
+        app.use(
+            (
+                err: IErrorResponse,
+                req: Request,
+                res: Response,
+                next: NextFunction
+            ): void => {
+                logger.info("Global error handler", err);
 
-	private async startServer(app: Application): Promise<void> {
-		try {
-			const httpServer: http.Server = new http.Server(app);
-			const socketIO: Server = await this.createSocketIO(httpServer);
+                if (err instanceof CustomError) {
+                    res.status(err.statusCode)
+                        .json(err.serializeErrors())
+                        .end();
+                } else {
+                    next();
+                }
+            }
+        );
+    }
 
-			this.startHttpServer(httpServer);
-			this.socketIOConnections(socketIO);
-		} catch (err) {
-			logger.error(`Something went wrong at start server: `, err);
-		}
-	}
+    private async startServer(app: Application): Promise<void> {
+        try {
+            const httpServer: http.Server = new http.Server(app);
+            const socketIO: Server = await this.createSocketIO(httpServer);
 
-	// Ensure that the redis server is running
-	// Command to run redis server is redis-server
-	private async createSocketIO(httpServer: http.Server): Promise<Server> {
-		try {
-			const { CLIENT_URL, REDIS_HOST } = process.env;
-			const io: Server = new Server(httpServer, {
-				cors: {
-					origin: CLIENT_URL,
-					methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-				},
-			});
-			const pubClient = createClient({ url: REDIS_HOST });
-			const subClient = pubClient.duplicate();
+            this.startHttpServer(httpServer);
+            this.socketIOConnections(socketIO);
+        } catch (err) {
+            logger.error("Something went wrong at start server: ", err);
+        }
+    }
 
-			await Promise.all([pubClient.connect(), subClient.connect()]);
-			io.adapter(createAdapter(pubClient, subClient));
+    // Ensure that the redis server is running
+    // Command to run redis server is redis-server
+    private async createSocketIO(httpServer: http.Server): Promise<Server> {
+        try {
+            const { CLIENT_URL, REDIS_HOST } = process.env;
+            const io: Server = new Server(httpServer, {
+                cors: {
+                    origin: CLIENT_URL,
+                    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+                }
+            });
+            const pubClient = createClient({ url: REDIS_HOST });
+            const subClient = pubClient.duplicate();
 
-			return io;
-		} catch (err) {
-			logger.error("Create Socket IO faced an error: ", err);
-			throw err;
-		}
-	}
+            await Promise.all([pubClient.connect(), subClient.connect()]);
+            io.adapter(createAdapter(pubClient, subClient));
 
-	private startHttpServer(httpServer: http.Server): void {
-		logger.info(`Server has started with a process of ${process.pid}`);
+            return io;
+        } catch (err) {
+            logger.error("Create Socket IO faced an error: ", err);
+            throw err;
+        }
+    }
 
-		// Do not use logger.info in production.
-		httpServer.listen(SERVER_PORT, () =>
-			logger.info(`Server listening on port ${SERVER_PORT}`)
-		);
-	}
+    private startHttpServer(httpServer: http.Server): void {
+        logger.info(`Server has started with a process of ${process.pid}`);
 
-	private socketIOConnections(io: Server): void {}
+        // Do not use logger.info in production.
+        httpServer.listen(SERVER_PORT, () =>
+            logger.info(`Server listening on port ${SERVER_PORT}`)
+        );
+    }
+
+    private socketIOConnections(io: Server): void {}
 }
