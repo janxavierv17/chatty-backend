@@ -48,7 +48,9 @@
         "prettier": "^3.2.5",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
-        "typescript-eslint": "^7.5.0"
+        "ttypescript": "^1.5.15",
+        "typescript-eslint": "^7.5.0",
+        "typescript-transform-paths": "^3.4.7"
     },
     "lint-staged": {
         "*.{ts,js}": "eslint --cache --fix",

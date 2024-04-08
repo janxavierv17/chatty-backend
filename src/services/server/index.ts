@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
 import {
     Application,
     json,
@@ -8,7 +7,6 @@ import {
     Request,
     NextFunction
 } from "express";
-
 import http from "http";
 import cors from "cors";
 import helmet from "helmet";
@@ -20,12 +18,9 @@ import HTTP_STATUS from "http-status-codes";
 import { Server } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
-import {
-    CustomError,
-    IError,
-    IErrorResponse
-} from "../../shared/globals/errors.ts";
-import { createLogger } from "../../shared/globals/logger.ts";
+
+import { createLogger } from "@globals/logger.ts";
+import { CustomError, IErrorResponse } from "@globals/errors.ts";
 
 const SERVER_PORT = 3001;
 const logger = createLogger("server");

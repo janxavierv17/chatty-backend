@@ -1,5 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { createLogger } from "../../shared/globals/logger.ts";
+import { createLogger } from "@globals/logger.ts";
+import connectDatabase from "@database/index.ts";
 
 const logger = createLogger("database");
 
@@ -14,7 +15,7 @@ const client = new MongoClient(DATABASE_URL, {
     }
 });
 
-export default () => {
+export const connectDatabase = () => {
     const connect = () => {
         client
             .connect()

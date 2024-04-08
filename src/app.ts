@@ -1,8 +1,8 @@
 import { z } from "zod";
 import express, { Express } from "express";
-import { ChattyServer } from "./services/server/index.ts";
-import connectDatabase from "./services/db/index.ts";
-import { env_variables } from "./shared/globals/";
+import { env_variables } from "@globals/index.ts";
+import { ChattyServer } from "@server/index.ts";
+import { connectDatabase } from "@database/index.ts";
 declare global {
     namespace NodeJS {
         interface ProcessEnv extends z.infer<typeof env_variables> {}
