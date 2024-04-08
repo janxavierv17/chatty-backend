@@ -1,6 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import { createLogger } from "@globals/logger.ts";
-import connectDatabase from "@database/index.ts";
 
 const logger = createLogger("database");
 
