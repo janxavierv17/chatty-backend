@@ -18,9 +18,10 @@ import HTTP_STATUS from "http-status-codes";
 import { Server } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
-
+import applicationRoutes from "../../routes";
 import { createLogger } from "../../shared/globals/logger";
 import { CustomError, IErrorResponse } from "../../shared/globals/errors";
+import { ZodError } from "zod";
 
 const SERVER_PORT = 3001;
 const logger = createLogger("server");
@@ -80,7 +81,9 @@ export class ChattyServer {
         app.use(urlencoded({ extended: true, limit: "50mb" }));
     }
 
-    private routesMiddleware(app: Application): void {}
+    private routesMiddleware(app: Application): void {
+        applicationRoutes(app);
+    }
 
     // Catch error where an endpoint does not exist.
     private globalErrorHandler(app: Application): void {
@@ -97,15 +100,15 @@ export class ChattyServer {
                 res: Response,
                 next: NextFunction
             ): void => {
-                logger.info("Global error handler", err);
+                if (err instanceof ZodError)
+                    res.status(HTTP_STATUS.BAD_REQUEST).json(err.errors);
 
-                if (err instanceof CustomError) {
+                if (err instanceof CustomError)
                     res.status(err.statusCode)
                         .json(err.serializeErrors())
                         .end();
-                } else {
-                    next();
-                }
+
+                next();
             }
         );
     }

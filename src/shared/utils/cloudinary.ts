@@ -5,18 +5,24 @@ import {
 } from "cloudinary";
 import { createLogger } from "../globals/logger";
 
-const logger = createLogger("Cloudinary");
+const logger = createLogger("Cloudinary =>");
 
 type imageType = "png" | "jpeg";
 type Base64<imageType extends string> =
     `data:image/${imageType};base64${string}`;
+type uploadArgs = {
+    file: Base64<imageType>;
+    public_id?: string;
+    overwrite?: boolean;
+    invalidate?: boolean;
+};
 
-export const upload = (
-    file: Base64<imageType>,
-    public_id?: string,
-    overwrite?: boolean,
-    invalidate?: boolean
-): Promise<UploadApiResponse | UploadApiErrorResponse> => {
+export const upload = ({
+    file,
+    public_id,
+    overwrite,
+    invalidate
+}: uploadArgs): Promise<UploadApiResponse | UploadApiErrorResponse> => {
     const config = { public_id, overwrite, invalidate };
     const callback = (
         err: UploadApiErrorResponse | undefined,
