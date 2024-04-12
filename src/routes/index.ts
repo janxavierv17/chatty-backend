@@ -1,7 +1,14 @@
 import { Application } from "express";
+import { createLogger } from "../shared/globals/logger";
+import { AuthRoutes } from "./auth/auth.routes";
+
+const logger = createLogger("Routes");
+const BASE_PATH = "/api/v1";
 
 export default (app: Application) => {
-    console.log(app);
-    const routes = () => {};
+    const routes = () => {
+        app.use(BASE_PATH, AuthRoutes.routes());
+    };
+
     routes();
 };
