@@ -1,38 +1,22 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import mongoose from "mongoose";
 import { createLogger } from "../../shared/globals/logger";
 
 const logger = createLogger("database");
 const { DATABASE_URL } = process.env;
 
-const client = new MongoClient(DATABASE_URL, {
-    monitorCommands: true,
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true
-    }
-});
-
 export const connectDatabase = () => {
-    const connect = () => {
-        client
-            .connect()
-            .then(() => logger.info("Successfully connected to our MongoDB."))
-            .catch((err) => {
-                logger.error(`Something went wrong ${err}`);
-                client.close();
-                return process.exit(1);
-            });
-
-        client
-            .db("admin")
-            .command({ ping: 1 })
-            .then((payload) =>
-                logger.info("Successfully pinged our db.", payload)
-            )
-            .catch((err) =>
-                logger.error(`Pinged db but an error occured ${err}.`)
+    const connect = async () => {
+        try {
+            await mongoose.connect(`${DATABASE_URL}`);
+            logger.info("Successfully connected to MongoDB!");
+        } catch (err) {
+            logger.error(
+                "Something went wrong with connecting to our database.",
+                err
             );
+            return process.exit(1);
+        }
     };
     connect();
+    mongoose.connection.on("disconnected", connect);
 };
