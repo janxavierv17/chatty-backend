@@ -12,6 +12,7 @@
         "sourceType": "module" // Allows for the use of imports
     },
     "rules": {
+        "no-unused-vars": "warn",
         "semi": [2, "always"],
         "space-before-function-paren": [
             0,
@@ -20,6 +21,7 @@
         "camelcase": 0,
         "no-return-assign": 0,
         "quotes": ["error", "double"],
+        "@typescript-eslint/no-unused-vars": "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off"
