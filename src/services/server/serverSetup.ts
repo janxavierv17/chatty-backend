@@ -24,7 +24,7 @@ import { CustomError, IErrorResponse } from "../../shared/globals/errors";
 import { ZodError } from "zod";
 
 const SERVER_PORT = 3001;
-const logger = createLogger("server");
+const logger = createLogger("Server");
 
 // Contains start up code
 // setupServer.ts

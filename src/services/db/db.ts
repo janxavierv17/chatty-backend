@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import { createLogger } from "../../shared/globals/logger";
+import { redisConnection } from "../redis/redis.connection";
 
-const logger = createLogger("database");
+const logger = createLogger("Database");
 const { DATABASE_URL } = process.env;
 
 export const connectDatabase = () => {
     const connect = async () => {
         try {
             await mongoose.connect(`${DATABASE_URL}`);
-            logger.info("Successfully connected to MongoDB!");
+            redisConnection.connect();
+            logger.info("Successfully connected to MongoDB");
         } catch (err) {
             logger.error(
                 "Something went wrong with connecting to our database.",

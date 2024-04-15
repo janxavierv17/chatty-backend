@@ -10,8 +10,11 @@ import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 import { upload } from "../shared/utils/cloudinary";
 import { createLogger } from "../shared/globals/logger";
 import HTTP_STATUS from "http-status-codes";
+import { redisUser } from "../services/redis/user/user.cache";
+import { IUserDocument } from "../interfaces/user.interface";
 
 const logger = createLogger("SignUp");
+const { CLOUDINARY_NAME } = process.env;
 export class SignUp {
     @validateWithZod(signupSchema)
     public async create(req: Request, res: Response): Promise<void> {
@@ -24,11 +27,11 @@ export class SignUp {
 
         if (existingUser) throw new BadRequestError("Invalid credentials.");
 
-        const authObjectId: ObjectId = new ObjectId();
+        const authObjectID: ObjectId = new ObjectId();
         const userObjectID: ObjectId = new ObjectId(); // We use this id to make sure we're referring to the same photo and be able to update their avater image.
         const uId: string = `${Helpers.generateRandomIntegers(12)}`;
         const data: ISignUpData = {
-            _id: authObjectId,
+            _id: authObjectID,
             uId,
             username,
             email,
@@ -48,6 +51,16 @@ export class SignUp {
             await upload(uploadArgs);
         logger.info("Cloudinary result =>", cloudinaryResult);
 
+        if (!cloudinaryResult.public_id)
+            throw new BadRequestError("Something went wrong with file upload");
+
+        const userDataToCache: IUserDocument = SignUp.prototype.userData(
+            authData,
+            userObjectID
+        );
+        userDataToCache.profilePicture = `https://res.cloudinary.com/${CLOUDINARY_NAME}/image/upload/v${cloudinaryResult.version}/${userObjectID}`;
+        await redisUser.cacheUser(`${userObjectID}`, uId, userDataToCache);
+
         res.status(HTTP_STATUS.CREATED).json({
             message: "User create successfully.",
             authData
@@ -66,5 +79,45 @@ export class SignUp {
             avatarColor,
             createAt: new Date()
         } as unknown as IAuthDocument;
+    }
+
+    private userData(
+        data: IAuthDocument,
+        userObjectId: ObjectId
+    ): IUserDocument {
+        const { _id, username, email, uId, password, avatarColor } = data;
+        return {
+            _id: userObjectId,
+            authId: _id,
+            uId,
+            username: Helpers.firstLetterUppercase(username),
+            email,
+            password,
+            avatarColor,
+            profilePicture: "",
+            blocked: [],
+            blockedBy: [],
+            work: "",
+            location: "",
+            school: "",
+            quote: "",
+            bgImageVersion: "",
+            bgImageId: "",
+            followersCount: 0,
+            followingCount: 0,
+            postsCount: 0,
+            notifications: {
+                messages: true,
+                reactions: true,
+                comments: true,
+                follows: true
+            },
+            social: {
+                facebook: "",
+                instagram: "",
+                twitter: "",
+                youtube: ""
+            }
+        } as unknown as IUserDocument;
     }
 }
