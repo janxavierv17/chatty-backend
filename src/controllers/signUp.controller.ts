@@ -12,6 +12,8 @@ import { createLogger } from "../shared/globals/logger";
 import HTTP_STATUS from "http-status-codes";
 import { redisUser } from "../services/redis/user/user.cache";
 import { IUserDocument } from "../interfaces/user.interface";
+import { omit } from "lodash";
+import { authQueue } from "../services/queues/auth.queue";
 
 const logger = createLogger("SignUp");
 const { CLOUDINARY_NAME } = process.env;
@@ -60,6 +62,10 @@ export class SignUp {
         );
         userDataToCache.profilePicture = `https://res.cloudinary.com/${CLOUDINARY_NAME}/image/upload/v${cloudinaryResult.version}/${userObjectID}`;
         await redisUser.cacheUser(`${userObjectID}`, uId, userDataToCache);
+
+        // add to database
+        omit(userDataToCache, ["uId", "username", "avatarColor", "password"]);
+        authQueue.addAuthUserJob("AddUserToDB", { value: userDataToCache });
 
         res.status(HTTP_STATUS.CREATED).json({
             message: "User create successfully.",
