@@ -23,12 +23,16 @@ export class SignUp {
     @validateWithZod(signupSchema)
     public async create(req: Request, res: Response): Promise<void> {
         logger.debug("[signUpController] - start");
+
         const { username, email, password, avatarColor, avatarImage } =
             req.body;
         const { signupToken, userData, signUpData } = SignUp.prototype;
+        const { getUserByUsernameOrEmail } = authService;
 
-        const existingUser: IAuthDocument =
-            await authService.getUserByUsernameOrEmail(username, email);
+        const existingUser: IAuthDocument = await getUserByUsernameOrEmail(
+            username,
+            email
+        );
 
         if (existingUser) throw new BadRequestError("Invalid credentials.");
 
@@ -65,9 +69,15 @@ export class SignUp {
         await redisUser.cacheUser(`${userObjectID}`, uId, userDataToCache);
 
         // Add data to our database.
-        omit(userDataToCache, ["uId", "username", "avatarColor", "password"]);
-        authQueue.addToJob("AddAuthUserToDB", { value: userDataToCache });
-        userQueue.AddToJob("AddUserToDB", { value: userDataToCache });
+        authQueue.addToJob("AddAuthUserToDB", { value: authData });
+        userQueue.AddToJob("AddUserToDB", {
+            value: omit(userDataToCache, [
+                "uId",
+                "username",
+                "avatarColor",
+                "password"
+            ])
+        });
 
         const userJwt = signupToken(authData, userObjectID);
 
@@ -93,13 +103,11 @@ export class SignUp {
         } as unknown as IAuthDocument;
     }
 
-    private userData(
-        data: IAuthDocument,
-        userObjectId: ObjectId
-    ): IUserDocument {
+    private userData(data: IAuthDocument, authId: ObjectId): IUserDocument {
         const { _id, username, email, uId, password, avatarColor } = data;
+
         return {
-            _id: userObjectId,
+            _id: authId,
             authId: _id,
             uId,
             username: Helpers.firstLetterUppercase(username),

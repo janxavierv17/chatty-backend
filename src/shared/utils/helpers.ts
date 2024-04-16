@@ -1,18 +1,20 @@
 export class Helpers {
     // We can call the method without instantiating the class.
-    static firstLetterUppercase(str: string): string {
-        const valueString = str.toLowerCase();
-        return valueString
-            .split(" ")
-            .map(
-                (value: string) =>
-                    `${value.charAt(0).toUpperCase()}${value.slice(1).toLocaleLowerCase()}`
-            )
-            .join(" ");
+    static firstLetterUppercase(str: string | undefined): string | undefined {
+        if (str) {
+            const valueString = str.toLowerCase();
+            return valueString
+                .split(" ")
+                .map(
+                    (value: string) =>
+                        `${value.charAt(0).toUpperCase()}${value.slice(1).toLocaleLowerCase()}`
+                )
+                .join(" ");
+        }
     }
 
-    static lowerCase(str: string): string {
-        return str.toLocaleLowerCase();
+    static lowerCase(str: string | undefined): string | undefined {
+        if (str) return str.toLocaleLowerCase();
     }
 
     static generateRandomIntegers(lengthOfIntegers: number): number {

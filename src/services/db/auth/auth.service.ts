@@ -6,8 +6,8 @@ import { createLogger } from "../../../shared/globals/logger";
 const logger = createLogger("AuthService");
 class AuthService {
     public async getUserByUsernameOrEmail(
-        username: string,
-        email: string
+        username?: string | undefined,
+        email?: string | undefined
     ): Promise<IAuthDocument> {
         const query = {
             $or: [
