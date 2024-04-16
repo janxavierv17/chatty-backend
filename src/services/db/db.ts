@@ -8,7 +8,7 @@ const { DATABASE_URL } = process.env;
 export const connectDatabase = () => {
     const connect = async () => {
         try {
-            await mongoose.connect(`${DATABASE_URL}`);
+            await mongoose.connect(`${DATABASE_URL}`, { dbName: "chatty" });
             redisConnection.connect();
             logger.info("Successfully connected to MongoDB");
         } catch (err) {

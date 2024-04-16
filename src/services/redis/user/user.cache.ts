@@ -92,8 +92,9 @@ class RedisUser extends BaseCache {
 
         try {
             this.logger.info(
-                "Is Redis client connection open?",
                 this.redis.isOpen
+                    ? "Opening a new redis connection"
+                    : "Not required to open another redis connection."
             );
 
             if (!this.redis.isOpen) await this.redis.connect();

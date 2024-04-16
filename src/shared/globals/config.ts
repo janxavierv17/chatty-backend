@@ -18,7 +18,8 @@ export const env_variables = z.object({
     CLOUDINARY_NAME: z.string(),
     CLOUDINARY_API_KEY: z.string(),
     CLOUDINARY_API_SECRET: z.string(),
-    CLOUDINARY_ENV_VARIABLE: z.string()
+    CLOUDINARY_ENV_VARIABLE: z.string(),
+    JWT_TOKEN: z.string()
 });
 env_variables.parse(process.env);
 

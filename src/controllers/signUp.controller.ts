@@ -14,15 +14,18 @@ import { redisUser } from "../services/redis/user/user.cache";
 import { IUserDocument } from "../interfaces/user.interface";
 import { omit } from "lodash";
 import { authQueue } from "../services/queues/auth.queue";
+import { userQueue } from "../services/queues/user.queue";
+import JWT from "jsonwebtoken";
 
 const logger = createLogger("SignUp");
-const { CLOUDINARY_NAME } = process.env;
+const { CLOUDINARY_NAME, JWT_TOKEN } = process.env;
 export class SignUp {
     @validateWithZod(signupSchema)
     public async create(req: Request, res: Response): Promise<void> {
         logger.debug("[signUpController] - start");
         const { username, email, password, avatarColor, avatarImage } =
             req.body;
+        const { signupToken, userData, signUpData } = SignUp.prototype;
 
         const existingUser: IAuthDocument =
             await authService.getUserByUsernameOrEmail(username, email);
@@ -41,7 +44,7 @@ export class SignUp {
             avatarColor
         };
 
-        const authData: IAuthDocument = SignUp.prototype.signUpData(data);
+        const authData: IAuthDocument = signUpData(data);
 
         const uploadArgs = {
             file: avatarImage,
@@ -56,20 +59,23 @@ export class SignUp {
         if (!cloudinaryResult.public_id)
             throw new BadRequestError("Something went wrong with file upload");
 
-        const userDataToCache: IUserDocument = SignUp.prototype.userData(
-            authData,
-            userObjectID
-        );
+        // Add data to our redis.
+        const userDataToCache: IUserDocument = userData(authData, userObjectID);
         userDataToCache.profilePicture = `https://res.cloudinary.com/${CLOUDINARY_NAME}/image/upload/v${cloudinaryResult.version}/${userObjectID}`;
         await redisUser.cacheUser(`${userObjectID}`, uId, userDataToCache);
 
-        // add to database
+        // Add data to our database.
         omit(userDataToCache, ["uId", "username", "avatarColor", "password"]);
-        authQueue.addAuthUserJob("AddUserToDB", { value: userDataToCache });
+        authQueue.addToJob("AddAuthUserToDB", { value: userDataToCache });
+        userQueue.AddToJob("AddUserToDB", { value: userDataToCache });
 
+        const userJwt = signupToken(authData, userObjectID);
+
+        req.session = { jwt: userJwt };
         res.status(HTTP_STATUS.CREATED).json({
             message: "User create successfully.",
-            authData
+            user: userDataToCache,
+            token: userJwt
         });
     }
 
@@ -125,5 +131,19 @@ export class SignUp {
                 youtube: ""
             }
         } as unknown as IUserDocument;
+    }
+
+    private signupToken(data: IAuthDocument, userObjectID: ObjectId): string {
+        const { uId, email, username, avatarColor } = data;
+        return JWT.sign(
+            {
+                userId: userObjectID,
+                uId,
+                email,
+                username,
+                avatarColor
+            },
+            JWT_TOKEN
+        );
     }
 }

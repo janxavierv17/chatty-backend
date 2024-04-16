@@ -1,7 +1,9 @@
 import { Helpers } from "../../../shared/utils/helpers";
 import { IAuthDocument } from "../../../interfaces/auth.interface";
 import { AuthModel } from "../../../schemas/authentication/auth.schema";
+import { createLogger } from "../../../shared/globals/logger";
 
+const logger = createLogger("AuthService");
 class AuthService {
     public async getUserByUsernameOrEmail(
         username: string,
@@ -21,9 +23,13 @@ class AuthService {
 
             return user;
         } catch (err) {
-            console.log("Error at Auth Service", err);
+            logger.error("Error at Auth Service", err);
             return err as unknown as IAuthDocument;
         }
+    }
+
+    public async createAuthUser(data: IAuthDocument): Promise<void> {
+        await AuthModel.create(data);
     }
 }
 
