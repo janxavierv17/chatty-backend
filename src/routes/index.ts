@@ -9,6 +9,7 @@ export default (app: Application) => {
         // Bull's GUI to see if there the job
         app.use("/queues", serverAdapter.getRouter());
         app.use(BASE_PATH, AuthRoutes.routes());
+        app.use(BASE_PATH, AuthRoutes.signOutRoute());
     };
 
     routes();
