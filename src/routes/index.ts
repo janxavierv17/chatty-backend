@@ -1,6 +1,8 @@
 import { Application } from "express";
 import { AuthRoutes } from "./auth/auth.routes";
+import { CurrentUserRoutes } from "./user/user.routes";
 import { serverAdapter } from "../services/queues/base.queue";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 const BASE_PATH = "/api/v1";
 
@@ -10,6 +12,9 @@ export default (app: Application) => {
         app.use("/queues", serverAdapter.getRouter());
         app.use(BASE_PATH, AuthRoutes.routes());
         app.use(BASE_PATH, AuthRoutes.signOutRoute());
+
+        // Add the middleware here.
+        app.use(BASE_PATH, AuthMiddleware.isUserValid, CurrentUserRoutes.routes());
     };
 
     routes();
