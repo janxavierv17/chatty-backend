@@ -21,22 +21,10 @@ export class SignIn {
         const passwordMatched = await existingUser.comparePassword(password);
         if (!passwordMatched) throw new BadRequestError("Invalid credentials.");
 
-        const user: IUserDocument = await userService.getUserByAuthID(
-            `${existingUser._id}`
-        );
+        const user: IUserDocument = await userService.getUserByAuthID(`${existingUser._id}`);
 
-        const {
-            _id,
-            uId,
-            email,
-            username: userName,
-            avatarColor,
-            createdAt
-        } = existingUser;
-        const userJwt: string = JWT.sign(
-            { userId: user._id, uId, email, username: userName, avatarColor },
-            JWT_TOKEN
-        );
+        const { _id, uId, email, username: userName, avatarColor, createdAt } = existingUser;
+        const userJwt: string = JWT.sign({ userId: user._id, uId, email, username: userName, avatarColor }, JWT_TOKEN);
 
         req.session = { jwt: userJwt };
         res.status(HTTP_STATUS.OK).json({
