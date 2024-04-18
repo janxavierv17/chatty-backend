@@ -7,11 +7,7 @@ class RedisUser extends BaseCache {
         super("User.Cache");
     }
 
-    public async cacheUser(
-        key: string,
-        userId: string,
-        createdUser: IUserDocument
-    ): Promise<void> {
+    public async cacheUser(key: string, userId: string, createdUser: IUserDocument): Promise<void> {
         const {
             _id,
             uId,
@@ -84,17 +80,11 @@ class RedisUser extends BaseCache {
             `${bgImageId}`
         ];
 
-        const dataToSave: string[] = [
-            ...firstList,
-            ...secondList,
-            ...thirdList
-        ];
+        const dataToSave: string[] = [...firstList, ...secondList, ...thirdList];
 
         try {
             this.logger.info(
-                this.redis.isOpen
-                    ? "Opening a new redis connection"
-                    : "Not required to open another redis connection."
+                this.redis.isOpen ? "Opening a new redis connection" : "Not required to open another redis connection."
             );
 
             if (!this.redis.isOpen) await this.redis.connect();
@@ -106,7 +96,34 @@ class RedisUser extends BaseCache {
 
             await this.redis.HSET(`users:${key}`, dataToSave);
         } catch (err) {
-            throw new APIError("Something went wrong at user.cache");
+            throw new APIError("Something went wrong at cacheUser method");
+        }
+    }
+
+    public async getUserFromCache(key: string): Promise<IUserDocument | null> {
+        try {
+            this.logger.info("[getUserFromCache] - start");
+            this.logger.info(
+                this.redis.isOpen ? "Opening a new redis connection" : "Not required to open another redis connection."
+            );
+            if (!this.redis.isOpen) await this.redis.connect();
+            const userFromCache: IUserDocument = (await this.redis.HGETALL(`users:${key}`)) as unknown as IUserDocument;
+
+            // Parse the data from our redis.
+            userFromCache.blocked = JSON.parse(`${userFromCache.blocked}`);
+            userFromCache.blockedBy = JSON.parse(`${userFromCache.blockedBy}`);
+            userFromCache.social = JSON.parse(`${userFromCache.social}`);
+            userFromCache.createdAt = new Date(`${userFromCache.createdAt}`);
+            userFromCache.postsCount = JSON.parse(`${userFromCache.postsCount}`);
+            userFromCache.notifications = JSON.parse(`${userFromCache.notifications}`);
+            userFromCache.followersCount = JSON.parse(`${userFromCache.followersCount}`);
+            userFromCache.followingCount = JSON.parse(`${userFromCache.followingCount}`);
+
+            this.logger.info("[getUserFromCache] - end");
+            return userFromCache;
+        } catch (err) {
+            this.logger.error(err);
+            throw new APIError("Something went wrong at getUserFromCache method");
         }
     }
 }
