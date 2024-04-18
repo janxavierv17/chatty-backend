@@ -6,6 +6,11 @@ Content-Type: application/json
 Accept: application/json
 withCredentials: true
 
+GET {{baseUrl}}/{{urlPath}}/user
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
 POST {{baseUrl}}/{{urlPath}}/signin
 Content-Type: application/json
 Accept: application/json
