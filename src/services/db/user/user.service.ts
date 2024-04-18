@@ -12,7 +12,9 @@ class UserService {
     public async getUserByAuthID(authId: string): Promise<IUserDocument> {
         logger.info("[getUserByAuthID] - start");
 
-        const user: IUserDocument[] = await UserModel.aggregate([
+        // Aggregate method is a effecient method and gives us the ability to manipulate the data.
+        // Left Outer Join
+        const [user]: IUserDocument[] = await UserModel.aggregate([
             { $match: { authId: new mongoose.Types.ObjectId(authId) } },
             {
                 $lookup: {
@@ -26,8 +28,19 @@ class UserService {
             { $project: this.aggregateProject() }
         ]);
 
-        logger.info("[getUserByAuthID] - end", user);
-        return user[0];
+        logger.info("[getUserByAuthID] - end");
+        return user;
+    }
+
+    public async getUserByID(userId: string): Promise<IUserDocument> {
+        const [user]: IUserDocument[] = await UserModel.aggregate([
+            { $match: new mongoose.Types.ObjectId(userId) },
+            { $lookup: { from: "Auth", localField: "authId", foreignField: "_id", as: "authId" } },
+            { $unwind: "$authId" },
+            { $project: this.aggregateProject() }
+        ]);
+
+        return user;
     }
 
     private aggregateProject() {
