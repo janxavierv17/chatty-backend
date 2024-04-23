@@ -1,12 +1,10 @@
 import { z } from "zod";
-import {
-    v2 as cloudinary,
-    UploadApiResponse,
-    UploadApiErrorResponse
-} from "cloudinary";
+import dotenv from "dotenv";
+import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 import { createLogger } from "./logger";
 
-// Include type safety to our process.env
+dotenv.config({});
+
 export const env_variables = z.object({
     PORT: z.string(),
     DATABASE_URL: z.string(),
@@ -59,10 +57,7 @@ export const upload = (
     invalidate?: boolean
 ): Promise<UploadApiResponse | UploadApiErrorResponse> => {
     const config = { public_id, overwrite, invalidate };
-    const callback = (
-        err: UploadApiErrorResponse | undefined,
-        result: UploadApiResponse | undefined
-    ) => {
+    const callback = (err: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (err) logger.error(err);
         if (result) logger.info(result);
     };

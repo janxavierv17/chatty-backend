@@ -4,7 +4,10 @@
     "description": "",
     "main": "src/index.ts",
     "scripts": {
-        "dev": "nodemon --config environments/dev/nodemon.json",
+        "dev": "nodemon",
+        "start": "NODE_ENV=production pm2 start build/index.js -i 5 --attach --watch | ./node_modules/.bin/bunyan",
+        "stop": "pm2 stop all",
+        "delete": "pm2 delete all",
         "seeds:dev": "npx ts-node src/services/db/seeds.ts",
         "format": "prettier 'src/**/*.{ts,json}' --check && prettier 'src/**/*.{ts,json}' --write",
         "lint": "eslint 'src/**/*.ts' && eslint 'src/**/*.ts' --fix",
