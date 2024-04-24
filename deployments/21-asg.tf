@@ -1,12 +1,13 @@
 resource "aws_autoscaling_group" "ec2_autoscaling_group" {
   name                = "${local.prefix}-ASG"
-  vpc_zone_identifier = [aws_subnet.private_subnet_a.id, aws_aws_subnet.private_subnet_c.id]
+  vpc_zone_identifier = [aws_subnet.private_subnet_a.id, aws_subnet.private_subnet_c.id]
 
   # Increase the number below if traffic is higher.
   min_size         = 1
   max_size         = 1
   desired_capacity = 1
 
+  launch_configuration      = aws_launch_configuration.asg_launch_configuration.name
   health_check_type         = "ELB"
   health_check_grace_period = 600 # 10 minutes. We want the libraries/modules to be installed.
   default_cooldown          = 150
@@ -17,7 +18,7 @@ resource "aws_autoscaling_group" "ec2_autoscaling_group" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [aws_elasticache_replication_group.chattapp_redis_cluster]
+  depends_on = [aws_elasticache_replication_group.chatapp_redis_cluster]
 
   tag {
     key                 = "Name"

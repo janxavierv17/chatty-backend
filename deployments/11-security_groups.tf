@@ -24,7 +24,7 @@ resource "aws_security_group" "bastion_host_sg" {
 }
 
 resource "aws_security_group" "alb_sg" {
-  name        = "${local.prefix}-bastion-alb-sg"
+  name        = "${local.prefix}-alb-sg"
   description = "Allows traffic through the application node balancer"
   vpc_id      = aws_vpc.main.id
 
@@ -56,7 +56,7 @@ resource "aws_security_group" "alb_sg" {
 
 # Our EC2 instances will come through our auto scaling group (ASG)
 resource "aws_security_group" "auto_scaling_group_sg" {
-  name        = "${local.prefix}-bastion-alb-sg"
+  name        = "${local.prefix}-autoscaling-group-sg"
   description = "Allows internet access for instances launch with ASG"
   vpc_id      = aws_vpc.main.id
 
@@ -88,7 +88,7 @@ resource "aws_security_group" "auto_scaling_group_sg" {
     from_port       = 3001
     to_port         = 3001
     protocol        = "TCP"
-    security_groups = [aws_security_group.bastion_host_sg.id]
+    security_groups = [aws_security_group.alb_sg.id]
     description     = "Allow access into our websserver through ALB"
   }
 
@@ -103,7 +103,7 @@ resource "aws_security_group" "auto_scaling_group_sg" {
 }
 
 resource "aws_security_group" "elasticache_sg" {
-  name        = "${local.prefix}-bastion-alb-sg"
+  name        = "${local.prefix}-elasticache-sg"
   description = "Allow access to our elasticache service"
   vpc_id      = aws_vpc.main.id
 
@@ -119,7 +119,7 @@ resource "aws_security_group" "elasticache_sg" {
     from_port       = 6379 # Port for HTTP
     to_port         = 6379
     protocol        = "TCP"
-    security_groups = [aws_security_group.bastion_host_sg.id]
+    security_groups = [aws_security_group.auto_scaling_group_sg.id]
     description     = "Allow access to redis server through ASG"
   }
 

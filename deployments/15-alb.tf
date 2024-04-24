@@ -13,7 +13,7 @@ resource "aws_alb" "application_load_balancer" {
 resource "aws_alb_listener" "alb_https_listener" {
   load_balancer_arn = aws_alb.application_load_balancer.arn
   port              = 443
-  protocol          = "HTTP"
+  protocol          = "HTTPS"
   ssl_policy        = var.https_ssl_policy
   certificate_arn   = aws_acm_certificate_validation.cert_validation.certificate_arn
   depends_on        = [aws_acm_certificate_validation.cert_validation]

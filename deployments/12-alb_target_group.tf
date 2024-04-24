@@ -13,7 +13,7 @@ resource "aws_alb_target_group" "server_backend-tg" {
     healthy_threshold   = 2   # Number of consecutive health check successes required before considering a target healthy. The range is 2-10. Defaults to 3.
     unhealthy_threshold = 10  # Number of consecutive health check failures required before considering a target unhealthy.
     interval            = 120 # checks the healthcheck endpoint every 120ms
-    timeout             = 120
+    timeout             = 100
     matcher             = "200"
   }
 
