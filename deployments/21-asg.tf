@@ -7,7 +7,13 @@ resource "aws_autoscaling_group" "ec2_autoscaling_group" {
   max_size         = 1
   desired_capacity = 1
 
-  launch_configuration      = aws_launch_configuration.asg_launch_configuration.name
+  # Moved from launch configuration to launch template.
+  # launch_configuration      = aws_launch_configuration.asg_launch_configuration.name
+  launch_template {
+    id      = aws_launch_template.asg_launch_configuration.id
+    version = "$Latest"
+  }
+
   health_check_type         = "ELB"
   health_check_grace_period = 600 # 10 minutes. We want the libraries/modules to be installed.
   default_cooldown          = 150
