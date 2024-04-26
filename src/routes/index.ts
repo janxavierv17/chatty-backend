@@ -10,7 +10,9 @@ export default (app: Application) => {
     const routes = () => {
         // Bull's GUI to see if there the job
         app.use("/queues", serverAdapter.getRouter());
-        app.use(BASE_PATH, HealthCheckRoutes.healthCheck());
+        app.use(HealthCheckRoutes.healthCheck());
+        app.use(HealthCheckRoutes.env());
+
         app.use(BASE_PATH, AuthRoutes.routes());
         app.use(BASE_PATH, AuthRoutes.signOutRoute());
 
