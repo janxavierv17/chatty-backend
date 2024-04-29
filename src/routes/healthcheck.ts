@@ -22,7 +22,7 @@ class HealthRoutes {
     public healthCheck(): Router {
         logger.info("[healthCheck] - start");
         this.router.get("/healthcheck", (req, res) =>
-            res.status(HTTP_STATUS.OK).send(`Server instance is health with process id ${process.pid}`)
+            res.status(HTTP_STATUS.OK).send(`Server instance is healthy with a process id ${process.pid}`)
         );
 
         logger.info("[healthCheck] - end");
