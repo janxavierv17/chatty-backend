@@ -1,9 +1,17 @@
 #!/bin/bash
 function isProgramInstalled {
-    type "$1" &>/dev/null
+  type "$1" &>/dev/null
 }
 
 sudo yum update -y
+sudo yum install ruby -y
+sudo yum install wget -y
+
+cd /home/ec2-user
+# wget https://bucket-name.s3.region-identifier.amazonaws.com/latest/install
+wget https://aws-codedeploy-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/latest/install
+chmod +x ./install
+sudo ./install auto
 
 # Check if Node.js is installed. If not, install it
 if ! isProgramInstalled node; then
@@ -34,4 +42,3 @@ sudo unzip env-file.zip
 sudo cp .env.develop .env
 npm run build
 npm run start
-
