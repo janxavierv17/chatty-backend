@@ -4,11 +4,11 @@ cd /home/ec2-user/chatty-backend
 
 sudo rm -rf env-file.zip
 sudo rm -rf .env
-sudo rm -rm .env.develop
+sudo rm -rm .env.staging
 
-aws s3 sync sync s3://janxv-env-files/develop .
+aws s3 sync sync s3://janxv-env-files/staging .
 unzip env-file.zip
 
-sudo cp .env.develop .env
+sudo cp .env.staging .env
 sudo pm2 delete all
 sudo npm install
