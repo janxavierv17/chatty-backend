@@ -63,17 +63,17 @@ variable "main_api_server_domain" {
   default     = "jan-xv.com"
 }
 
-# variable "dev_api_server_domain" {
-#   description = "Dev API Server Domain"
-#   type        = string
-#   default     = "api.dev.jan-xv.com"
-# }
-
 variable "dev_api_server_domain" {
   description = "Dev API Server Domain"
   type        = string
-  default     = "api.staging.jan-xv.com"
+  default     = "api.dev.jan-xv.com"
 }
+
+# variable "dev_api_server_domain" {
+#   description = "Dev API Server Domain"
+#   type        = string
+#   default     = "api.staging.jan-xv.com"
+# }
 
 # variable "dev_api_server_domain" {
 #   description = "Dev API Server Domain"
