@@ -1,10 +1,25 @@
 terraform {
-  backend "s3" {
+  # backend "s3" {
+  #   bucket  = "jan-app-terraform-state"
+  #   key     = "develop/app.tfstate"
+  #   region  = "ap-southeast-2"
+  #   encrypt = true # Encrypt our state
+  # }
+
+
+    backend "s3" {
     bucket  = "jan-app-terraform-state"
-    key     = "develop/app.tfstate"
+    key     = "staging/app.tfstate"
     region  = "ap-southeast-2"
     encrypt = true # Encrypt our state
   }
+
+  #  backend "s3" {
+  #   bucket  = "jan-app-terraform-state"
+  #   key     = "production/app.tfstate"
+  #   region  = "ap-southeast-2"
+  #   encrypt = true # Encrypt our state
+  # }
 }
 
 # Reusing variables

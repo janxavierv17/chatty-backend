@@ -63,11 +63,23 @@ variable "main_api_server_domain" {
   default     = "jan-xv.com"
 }
 
+# variable "dev_api_server_domain" {
+#   description = "Dev API Server Domain"
+#   type        = string
+#   default     = "api.dev.jan-xv.com"
+# }
+
 variable "dev_api_server_domain" {
   description = "Dev API Server Domain"
   type        = string
-  default     = "api.dev.jan-xv.com"
+  default     = "api.staging.jan-xv.com"
 }
+
+# variable "dev_api_server_domain" {
+#   description = "Dev API Server Domain"
+#   type        = string
+#   default     = "api.production.jan-xv.com"
+# }
 
 variable "ec2_iam_role_name" {
   description = "EC2 IAM Role Name"
