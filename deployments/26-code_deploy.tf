@@ -40,4 +40,15 @@ resource "aws_codedeploy_deployment_group" "code_deploy_app_group" {
       termination_wait_time_in_minutes = 0 # Terminate it immediately.
     }
   }
+
+  provisioner "local-exec" {
+    command    = file("./userdata/delete-asg.sh")
+    when       = destroy
+    on_failure = continue
+
+    environment = {
+      # Fetches the auto-scaling-group we want to destroy
+      ENV_TYPE = "Backend-${terraform.workspace}"
+    }
+  }
 }
