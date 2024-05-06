@@ -64,25 +64,23 @@ variable "main_api_server_domain" {
 }
 
 # Ensure that the env file is manually stored in our s3 bucket.
+variable "dev_api_server_domain" {
+  description = "Dev API Server Domain"
+  type        = string
+  default     = "api.dev.jan-xv.com"
+}
+
 # variable "dev_api_server_domain" {
 #   description = "Dev API Server Domain"
 #   type        = string
-#   default     = "api.dev.jan-xv.com"
+#   default     = "api.staging.jan-xv.com"
 # }
 
-# Ensure that the env file is manually stored in our s3 bucket.
-variable "dev_api_server_domain" {
-  description = "Dev API Server Domain"
-  type        = string
-  default     = "api.staging.jan-xv.com"
-}
-
-# Ensure that the env file is manually stored in our s3 bucket.
-variable "dev_api_server_domain" {
-  description = "Dev API Server Domain"
-  type        = string
-  default     = "api.jan-xv.com"
-}
+# variable "dev_api_server_domain" {
+#   description = "Dev API Server Domain"
+#   type        = string
+#   default     = "api.production.jan-xv.com"
+# }
 
 variable "ec2_iam_role_name" {
   description = "EC2 IAM Role Name"

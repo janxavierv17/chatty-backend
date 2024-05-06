@@ -2,7 +2,7 @@ import { APIError } from "../../../shared/globals/errors";
 import { IUserDocument } from "../../../interfaces/user.interface";
 import { BaseCache } from "../base.cache";
 
-class RedisUser extends BaseCache {
+export class RedisUser extends BaseCache {
     constructor() {
         super("User.Cache");
     }
