@@ -1,3 +1,91 @@
 # This config was automatically generated from your source code
 # Stacks detected: deps:node:.,test:jest:
 version: 2.1
+orbs:
+    codecov: codecov/codecov@4.1.0
+# When we call executors we'll have access to images such as node.
+executors:
+    # "app-executor" can be any user defined name
+    app-executor:
+        docker:
+            - image: cimg/node:16.17.0
+            - image: cimg/redis:7.0.2
+            - image: "cibuilds/base:latest"
+        # our directory can be anything other than repo.
+        working_directory: ~/repo
+    terraform-executor:
+        docker:
+            - image: hashicorp/terraform:latest
+
+aliases:
+    - &show-current-branch-name
+      run:
+          name: Show current branch
+          command: echo ${CURRENT_BRANCH}
+    - &restore-cache
+      restore_cache:
+          keys:
+              - app-{{ checksum "package.json" }}
+              - app-
+    - &install-dependencies
+      run:
+          name: Installs dependencies
+          command: npm i
+    - &save-cache
+      save_cache:
+          paths:
+              - node_modules
+          key: app-{{ checksum "package.json" }}
+    - &zip-project
+      run:
+          name: zip our project
+          command: |
+              rm -rf node_modules
+              zip chatapp.zip -r .
+              echo "Successfully zipped our project"
+
+# A job will stop when each below tasks fails.
+jobs:
+    # below can be any name. We'll follow as the documentation says and have 'build:'
+    build:
+        executor: app-executor
+        steps:
+            - checkout
+            - *show-current-branch-name
+            - *restore-cache
+            - *install-dependencies
+            - *save-cache
+    linting:
+        executor: app-executor
+        steps:
+            - checkout
+            - *show-current-branch-name
+            - *restore-cache
+            - run:
+                  name: Run eslint
+                  command: npm run lint:check
+    format-code:
+        executor: app-executor
+        steps:
+            - checkout
+            - *show-current-branch-name
+            - *restore-cache
+            - run:
+                  name: Prettier
+                  command: npm run prettier:check
+    test:
+        executor: app-executor
+        steps:
+            - checkout
+            - setup_remote_docker
+            - *show-current-branch-name
+            - *restore-cache
+            - run:
+                  name: Start redis server
+                  command: docker run --name chatapp-server redis-server -p 6379:6379 -d redis
+                  background: true
+            - run:
+                  name: Start redis server
+                  command: |
+                      sleep 3 
+                      npm run test
