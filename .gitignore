@@ -5,4 +5,8 @@ dist
 .env.*
 .eslintcache
 chatappEC2KeyPair.pem
+<<<<<<< Updated upstream
 coverage
+=======
+coverage
+>>>>>>> Stashed changes
