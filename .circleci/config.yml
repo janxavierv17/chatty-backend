@@ -89,3 +89,4 @@ jobs:
                   command: |
                       sleep 3 
                       npm run test
+            - codecov/upload
