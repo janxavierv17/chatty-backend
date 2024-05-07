@@ -156,7 +156,7 @@ jobs:
                   command: docker run --name chatapp-redis -p 6379:6379 -d redis
                   background: true
             - run:
-                  name: Start redis server
+                  name: Run tests
                   command: |
                       sleep 3 
                       npm run test
