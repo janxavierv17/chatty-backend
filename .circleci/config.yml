@@ -167,6 +167,8 @@ jobs:
         steps:
             - checkout
             - *show-current-branch-name
+            - aws-cli/setup:
+                  profile_name: default
             - run:
                   name: Terraform cli to format & validate our .tf files
                   command: |
