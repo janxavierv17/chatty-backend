@@ -85,7 +85,7 @@ describe("SignUp", () => {
         const req: Request = authMockRequest(
             {},
             {
-                username: "Manny",
+                username: "Mannyy",
                 email: "not valid",
                 password: "qwerty",
                 avatarColor: "red",
