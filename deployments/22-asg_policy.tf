@@ -1,7 +1,7 @@
 # When we reach a certain treshold we'll scale our app.
 resource "aws_autoscaling_policy" "asg_scale_out_policy" {
   name                   = "ASG-SCALE-OUT-POLICY"
-  autoscaling_group_name = aws_autoscaling_group.ec2_autoscaling_group
+  autoscaling_group_name = aws_autoscaling_group.ec2_autoscaling_group.name
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
   scaling_adjustment     = 1   # Add one new instance
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_scale_out_alarm" {
 # Removing an instance
 resource "aws_autoscaling_policy" "asg_scale_in_policy" {
   name                   = "ASG-SCALE-IN-POLICY"
-  autoscaling_group_name = aws_autoscaling_group.ec2_autoscaling_group
+  autoscaling_group_name = aws_autoscaling_group.ec2_autoscaling_group.name
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
   scaling_adjustment     = -1  # remove one instance
