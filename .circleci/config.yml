@@ -342,7 +342,7 @@ workflows:
 
             - upload-project-to-s3:
                   requires:
-                      - unit-test
+                      - test
                   filters:
                       branches:
                           only:
@@ -393,7 +393,7 @@ workflows:
                       - notify-slack-workspace
             - terraform-destroy:
                   requires:
-                      - hold
+                      - manual-approval
                   filters:
                       branches:
                           only:
