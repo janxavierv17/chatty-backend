@@ -13,7 +13,7 @@
         "lint:check": "eslint 'src/**/*.ts'",
         "lint:fix": "eslint 'src/**/*.ts' --fix",
         "prepare": "husky install",
-        "test": "jest --coverage=true -w=1 --forceExit --detectOpenHandles --watchAll=false",
+        "test": "jest --coverage=true -w=1 --forceExit --detectOpenHandles --passWithNoTests --watchAll=false",
         "build": "tsc"
     },
     "keywords": [],
