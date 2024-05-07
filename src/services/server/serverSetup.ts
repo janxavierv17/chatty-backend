@@ -1,12 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-    Application,
-    json,
-    urlencoded,
-    Response,
-    Request,
-    NextFunction
-} from "express";
+import { Application, json, urlencoded, Response, Request, NextFunction } from "express";
 import http from "http";
 import cors from "cors";
 import helmet from "helmet";
@@ -93,24 +86,13 @@ export class ChattyServer {
             });
         });
 
-        app.use(
-            (
-                err: IErrorResponse,
-                req: Request,
-                res: Response,
-                next: NextFunction
-            ): void => {
-                if (err instanceof ZodError)
-                    res.status(HTTP_STATUS.BAD_REQUEST).json(err.errors);
+        app.use((err: IErrorResponse, req: Request, res: Response, next: NextFunction): void => {
+            if (err instanceof ZodError) res.status(HTTP_STATUS.BAD_REQUEST).json(err.errors);
 
-                if (err instanceof CustomError)
-                    res.status(err.statusCode)
-                        .json(err.serializeErrors())
-                        .end();
+            if (err instanceof CustomError) res.status(err.statusCode).json(err.serializeErrors()).end();
 
-                next();
-            }
-        );
+            next();
+        });
     }
 
     private async startServer(app: Application): Promise<void> {
@@ -154,9 +136,7 @@ export class ChattyServer {
         logger.info(`Server has started with a process of ${process.pid}`);
 
         // Do not use logger.info in production.
-        httpServer.listen(SERVER_PORT, () =>
-            logger.info(`Server listening on port ${SERVER_PORT}`)
-        );
+        httpServer.listen(SERVER_PORT, () => logger.info(`Server listening on port ${SERVER_PORT}`));
     }
 
     private socketIOConnections(io: Server): void {}

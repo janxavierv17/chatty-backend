@@ -10,16 +10,11 @@ class AuthService {
         email?: string | undefined
     ): Promise<IAuthDocument> {
         const query = {
-            $or: [
-                { username: Helpers.firstLetterUppercase(username) },
-                { email: Helpers.lowerCase(email) }
-            ]
+            $or: [{ username: Helpers.firstLetterUppercase(username) }, { email: Helpers.lowerCase(email) }]
         };
 
         try {
-            const user: IAuthDocument = (await AuthModel.findOne(
-                query
-            ).exec()) as IAuthDocument;
+            const user: IAuthDocument = (await AuthModel.findOne(query).exec()) as IAuthDocument;
 
             return user;
         } catch (err) {

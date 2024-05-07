@@ -35,12 +35,8 @@ export abstract class BaseQueue {
     private queueEvents(): void {
         // There's no need to see the completed job in the dashboard.
         this.queue.on("completed", (job: Job) => job.remove());
-        this.queue.on("global:completed", (id: string) =>
-            this.logger.info(`Job id:${id} has completed`)
-        );
-        this.queue.on("global:stalled", (id: string) =>
-            this.logger.info(`Job id:${id} has stalled`)
-        );
+        this.queue.on("global:completed", (id: string) => this.logger.info(`Job id:${id} has completed`));
+        this.queue.on("global:stalled", (id: string) => this.logger.info(`Job id:${id} has stalled`));
     }
 
     protected addQueueJob(name: string, data: IAuthJob): void {
@@ -50,11 +46,7 @@ export abstract class BaseQueue {
         });
     }
 
-    protected processQueueJob(
-        name: string,
-        concurency: number,
-        cb: Queue.ProcessCallbackFunction<void>
-    ): void {
+    protected processQueueJob(name: string, concurency: number, cb: Queue.ProcessCallbackFunction<void>): void {
         this.queue.process(name, concurency, cb);
     }
 }
