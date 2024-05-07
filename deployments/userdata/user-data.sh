@@ -37,8 +37,8 @@ cd /home/ec2-user
 git clone -b feature/terraform-state https://github.com/janxavierv17/chatty-backend.git
 cd chatty-backend
 npm i
-sudo aws s3 sync s3://janxv-env-files/develop .
+sudo aws s3 sync s3://janxv-env-files/production .
 sudo unzip env-file.zip
-sudo cp .env.develop .env
+sudo cp .env.production .env
 npm run build
 npm run start

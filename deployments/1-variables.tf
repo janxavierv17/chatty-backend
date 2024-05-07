@@ -63,6 +63,7 @@ variable "main_api_server_domain" {
   default     = "jan-xv.com"
 }
 
+# Ensure that the env file is manually stored in our s3 bucket.
 variable "dev_api_server_domain" {
   description = "Dev API Server Domain"
   type        = string
