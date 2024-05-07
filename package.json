@@ -78,6 +78,7 @@
     "lint-staged": {
         "*.{ts,js}": "eslint --cache --fix",
         "*.--check": "npm run prettier:check",
+        "config.yml": "circleci config validate",
         "*": "npm run test"
     }
 }
