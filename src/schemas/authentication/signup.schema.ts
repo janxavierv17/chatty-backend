@@ -14,14 +14,8 @@ export const signupSchema = z
                 required_error: "A valid password is required.",
                 invalid_type_error: "A passwordword must be a string."
             })
-            .min(
-                4,
-                "Invalid password. The length of your password must be 4 to 8 characters."
-            )
-            .max(
-                8,
-                "Invalid password. The length of your password must be 4 to 8 characters."
-            ),
+            .min(4, "Invalid password. The length of your password must be 4 to 8 characters.")
+            .max(8, "Invalid password. The length of your password must be 4 to 8 characters."),
         email: z
             .string({
                 required_error: "A valid email address is required.",

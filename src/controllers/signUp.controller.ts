@@ -24,15 +24,11 @@ export class SignUp {
     public async create(req: Request, res: Response): Promise<void> {
         logger.debug("[signUpController] - start");
 
-        const { username, email, password, avatarColor, avatarImage } =
-            req.body;
+        const { username, email, password, avatarColor, avatarImage } = req.body;
         const { signupToken, userData, signUpData } = SignUp.prototype;
         const { getUserByUsernameOrEmail } = authService;
 
-        const existingUser: IAuthDocument = await getUserByUsernameOrEmail(
-            username,
-            email
-        );
+        const existingUser: IAuthDocument = await getUserByUsernameOrEmail(username, email);
 
         if (existingUser) throw new BadRequestError("Invalid credentials.");
 
@@ -56,12 +52,10 @@ export class SignUp {
             overwrite: true,
             invalidate: true
         };
-        const cloudinaryResult: UploadApiResponse | UploadApiErrorResponse =
-            await upload(uploadArgs);
+        const cloudinaryResult: UploadApiResponse | UploadApiErrorResponse = await upload(uploadArgs);
         logger.info("Cloudinary result =>", cloudinaryResult);
 
-        if (!cloudinaryResult.public_id)
-            throw new BadRequestError("Something went wrong with file upload");
+        if (!cloudinaryResult.public_id) throw new BadRequestError("Something went wrong with file upload");
 
         // Add data to our redis.
         const userDataToCache: IUserDocument = userData(authData, userObjectID);
@@ -71,12 +65,7 @@ export class SignUp {
         // Add data to our database.
         authQueue.addToJob("AddAuthUserToDB", { value: authData });
         userQueue.AddToJob("AddUserToDB", {
-            value: omit(userDataToCache, [
-                "uId",
-                "username",
-                "avatarColor",
-                "password"
-            ])
+            value: omit(userDataToCache, ["uId", "username", "avatarColor", "password"])
         });
 
         const userJwt = signupToken(authData, userObjectID);

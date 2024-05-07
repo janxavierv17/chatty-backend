@@ -34,11 +34,7 @@ function avatarColor(): string {
     return colors[floor(random(0.9) * colors.length)];
 }
 
-function generateAvatar(
-    text: string,
-    backgroundColor: string,
-    foregroundColor = "white"
-) {
+function generateAvatar(text: string, backgroundColor: string, foregroundColor = "white") {
     const canvas = createCanvas(200, 200);
     const context = canvas.getContext("2d");
 
@@ -60,10 +56,7 @@ async function seedUserData(count: number): Promise<void> {
         for (i = 0; i < count; i++) {
             const username: string = faker.person.firstName("male");
             const color = avatarColor();
-            const avatar = generateAvatar(
-                username.charAt(0).toUpperCase(),
-                color
-            );
+            const avatar = generateAvatar(username.charAt(0).toUpperCase(), color);
 
             const body = {
                 username,
@@ -72,9 +65,7 @@ async function seedUserData(count: number): Promise<void> {
                 avatarColor: color,
                 avatarImage: avatar
             };
-            console.log(
-                `***ADDING USER TO DATABASE*** - ${i + 1} of ${count} - ${username}`
-            );
+            console.log(`***ADDING USER TO DATABASE*** - ${i + 1} of ${count} - ${username}`);
 
             await axios.post("http://localhost:3001/api/v1/signup", body);
         }

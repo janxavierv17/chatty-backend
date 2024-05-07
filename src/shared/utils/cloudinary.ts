@@ -1,15 +1,10 @@
-import {
-    v2 as cloudinary,
-    UploadApiResponse,
-    UploadApiErrorResponse
-} from "cloudinary";
+import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 import { createLogger } from "../globals/logger";
 
 const logger = createLogger("Cloudinary =>");
 
 type imageType = "png" | "jpeg";
-type Base64<imageType extends string> =
-    `data:image/${imageType};base64${string}`;
+type Base64<imageType extends string> = `data:image/${imageType};base64${string}`;
 type uploadArgs = {
     file: Base64<imageType>;
     public_id?: string;
@@ -24,10 +19,7 @@ export const upload = ({
     invalidate
 }: uploadArgs): Promise<UploadApiResponse | UploadApiErrorResponse> => {
     const config = { public_id, overwrite, invalidate };
-    const callback = (
-        err: UploadApiErrorResponse | undefined,
-        result: UploadApiResponse | undefined
-    ) => {
+    const callback = (err: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (err) logger.error(err);
         if (result) logger.info(result);
     };

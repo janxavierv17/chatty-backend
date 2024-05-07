@@ -5,10 +5,7 @@ export class Helpers {
             const valueString = str.toLowerCase();
             return valueString
                 .split(" ")
-                .map(
-                    (value: string) =>
-                        `${value.charAt(0).toUpperCase()}${value.slice(1).toLocaleLowerCase()}`
-                )
+                .map((value: string) => `${value.charAt(0).toUpperCase()}${value.slice(1).toLocaleLowerCase()}`)
                 .join(" ");
         }
     }
@@ -22,9 +19,7 @@ export class Helpers {
         let result = " ";
 
         for (let i = 0; i < lengthOfIntegers; i++) {
-            result += characters.charAt(
-                Math.floor(Math.random() * characters.length)
-            );
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
 
         return parseInt(result, 10);

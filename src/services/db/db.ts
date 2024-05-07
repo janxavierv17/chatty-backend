@@ -12,10 +12,7 @@ export const connectDatabase = () => {
             redisConnection.connect();
             logger.info("Successfully connected to MongoDB");
         } catch (err) {
-            logger.error(
-                "Something went wrong with connecting to our database.",
-                err
-            );
+            logger.error("Something went wrong with connecting to our database.", err);
             return process.exit(1);
         }
     };

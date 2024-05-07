@@ -10,10 +10,7 @@ export const emailSchema = z
     .required();
 export const passwordSchema = z
     .object({
-        password: z
-            .string({ required_error: "Please enter a valid password" })
-            .min(4)
-            .max(8),
+        password: z.string({ required_error: "Please enter a valid password" }).min(4).max(8),
         confirmPassword: z.string()
     })
     .required()
