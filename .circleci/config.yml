@@ -162,24 +162,13 @@ jobs:
                       npm run test
             - codecov/upload
             - *notify-on-fail
-    upload-project-to-s3:
-        executor: aws-cli/default
-        steps:
-            - checkout
-            - aws-cli/setup:
-                  profile_name: default
-            - *zip-project
-
-            - run:
-                  name: Upload project to s3
-                  command: |
-                      aws --region ap-southeast-2 cp chatapp.zip s3://chatty-app-server-${CIRCLE_BRANCH}-app
-            - *notify-on-fail
     terraform-fmt-validate:
         executor: terraform-executor
         steps:
             - checkout
             - *show-current-branch-name
+            - aws-cli/setup:
+                  profile_name: default
             - run:
                   name: Terraform cli to format & validate our .tf files
                   command: |
@@ -206,6 +195,19 @@ jobs:
                       cd deployments/
                       terraform workspace select ${CIRCLE_BRANCH}
                       terraform apply -auto-approve
+            - *notify-on-fail
+    upload-project-to-s3:
+        executor: aws-cli/default
+        steps:
+            - checkout
+            - aws-cli/setup:
+                  profile_name: default
+            - *zip-project
+
+            - run:
+                  name: Upload project to s3
+                  command: |
+                      aws --region ap-southeast-2 cp chatapp.zip s3://chatty-app-server-${CIRCLE_BRANCH}-app
             - *notify-on-fail
     code-to-aws:
         executor: aws-cli/default
@@ -337,6 +339,16 @@ workflows:
                               - develop
                               - staging
                               - main
+
+            - upload-project-to-s3:
+                  requires:
+                      - unit-test
+                  filters:
+                      branches:
+                          only:
+                              - develop
+                              - staging
+                              - main
             - terraform-fmt-validate:
                   requires:
                       - test
@@ -381,7 +393,7 @@ workflows:
                       - notify-slack-workspace
             - terraform-destroy:
                   requires:
-                      - code-to-aws
+                      - hold
                   filters:
                       branches:
                           only:
