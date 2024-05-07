@@ -195,6 +195,13 @@ jobs:
                       cd deployments/
                       terraform workspace select ${CIRCLE_BRANCH}
                       terraform apply -auto-approve
+            - run:
+                  name: Terraform cli to destroy our plan when this job fails.
+                  command: |
+                      cd deployments
+                      terraform workspace select ${CIRCLE_BRANCH} || terraform workspace new ${CIRCLE_BRANCH}
+                      terraform destroy -auto-approve
+                  when: on_fail
             - *notify-on-fail
     upload-project-to-s3:
         executor: aws-cli/default
