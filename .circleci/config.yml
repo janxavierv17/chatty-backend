@@ -345,16 +345,6 @@ workflows:
                               - develop
                               - staging
                               - main
-
-            - upload-project-to-s3:
-                  requires:
-                      - test
-                  filters:
-                      branches:
-                          only:
-                              - develop
-                              - staging
-                              - main
             - terraform-fmt-validate:
                   requires:
                       - test
@@ -367,6 +357,15 @@ workflows:
             - terraform-plan-apply:
                   requires:
                       - terraform-fmt-validate
+                  filters:
+                      branches:
+                          only:
+                              - develop
+                              - staging
+                              - main
+            - upload-project-to-s3:
+                  requires:
+                      - terraform-plan-apply
                   filters:
                       branches:
                           only:
