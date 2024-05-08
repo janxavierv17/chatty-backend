@@ -7,6 +7,7 @@ import { authMock, authMockRequest, authMockResponse } from "../../mocks/auth.mo
 import { authService } from "../../services/db/auth/auth.service";
 import { RedisUser } from "../../services/redis/user/user.cache";
 import { ZodError } from "zod";
+import { BadRequestError } from "../../shared/globals/errors";
 
 jest.useFakeTimers();
 jest.mock("../../services/queues/base.queue");
@@ -219,6 +220,29 @@ describe("SignUp", () => {
             message: "User create successfully.",
             user: userSpy.mock.calls[0][2],
             token: req.session?.jwt
+        });
+    });
+
+    it("should throw an error when cloudinary public_id is missing.", async () => {
+        const req: Request = authMockRequest(
+            {},
+            {
+                username: "Manny",
+                email: "manny@test.com",
+                password: "qwerty",
+                avatarColor: "red",
+                avatarImage: "data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=="
+            }
+        ) as Request;
+        const res: Response = authMockResponse();
+
+        jest.spyOn(authService, "getUserByUsernameOrEmail").mockResolvedValue(null as any);
+        jest.spyOn(cloudinaryUploads, "upload").mockImplementation((): any => Promise.resolve({}));
+
+        await SignUp.prototype.create(req, res).catch((err) => {
+            expect(err instanceof BadRequestError).toBe(true);
+            expect(err.statusCode).toBe(400);
+            expect(err.message).toBe("Something went wrong with file upload");
         });
     });
 });
