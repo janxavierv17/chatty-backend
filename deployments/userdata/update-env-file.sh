@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Uploading to s3 using the cli with the command below
-# aws --region ap-southeast-2 s3 cp env-file.zip s3://janxv-env-files/develop/
-
 function isProgramInstalled {
   type "$1" &>/dev/null
 }
 
-if [ $(isProgramInstalled zip) == 0 ]; then
+# Uploading to s3 using the cli with the command below
+# aws --region ap-southeast-2 s3 cp env-file.zip s3://janxv-env-files/develop/
+
+if ! isProgramInstalled zip; then
   apk update
   apk add zip
 fi
