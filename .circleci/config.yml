@@ -183,14 +183,14 @@ jobs:
             - checkout
             - *show-current-branch-name
             - run:
-                  name: Terraform cli to plan and use our plan with apply
+                  name: Terraform cli command to run plan on our configurations
                   command: |
                       cd deployments/
                       terraform init
                       terraform workspace select ${CIRCLE_BRANCH} || terraform workspace new ${CIRCLE_BRANCH}
                       terraform plan
             - run:
-                  name: Terraform cli to plan and use our plan with apply
+                  name: Terraform cli command to run apply on our configurations
                   command: |
                       cd deployments/
                       terraform workspace select ${CIRCLE_BRANCH}
@@ -374,7 +374,7 @@ workflows:
                               - main
             - code-to-aws:
                   requires:
-                      - terraform-plan-apply
+                      - upload-project-to-s3
                   filters:
                       branches:
                           only:
