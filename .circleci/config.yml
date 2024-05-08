@@ -210,7 +210,6 @@ jobs:
             - aws-cli/setup:
                   profile_name: default
             - *zip-project
-
             - run:
                   name: Upload project to s3
                   command: |
